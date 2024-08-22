@@ -51,17 +51,18 @@ def run():
             print(f"  Bounding Box: (x1={x1}, y1={y1}, x2={x2}, y2={y2})")
             print(f"  Confidence: {confidence:.2f}")
             print()
-            control.update(class_name,sign_size(image_width,image_height,x1,x2,y1,y2))
-            if class_name in speed_limit_class_names:
-                control.update_speed()
-            if class_name == "Red Light":
-                control.check_red()
-            if class_name == "Green Light":
-                control.check_green()
-            if class_name == "Stop":
-                control.check_stop()
+            if confidence >= 0.8:
+                control.update(class_name,sign_size(image_width,image_height,x1,x2,y1,y2),confidence)
+                if class_name in speed_limit_class_names:
+                    control.update_speed()
+                if class_name == "Red Light":
+                    control.check_red()
+                if class_name == "Green Light":
+                    control.check_green()
+                if class_name == "Stop":
+                    control.check_stop()
         else:
-            control.update("none",0)
+            control.update("none",0,0)
         
         control.check_violation(car_speed)
         frame = detector.draw_detections(frame, detections)
