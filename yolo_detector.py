@@ -6,7 +6,7 @@ class YOLODetector:
         self.model = YOLO(model_path)
         self.class_names = self.model.names
 
-    def detect(self, frame, conf=0.6):
+    def detect(self, frame, conf=0.5):
         results = self.model(frame, conf=conf)
         detections = []
 
