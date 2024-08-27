@@ -3,7 +3,7 @@
 import cv2
 from yolo_detector import YOLODetector
 from checker import CarControl
-
+#hedhi nchoufou beha l size bch n9arnou bl sign ratio w naarfou l car taht l sign wale
 def sign_size(image_width, image_height,x1,x2,y1,y2):
         max_sign_area = 0
         sign_center = None
@@ -16,22 +16,20 @@ def sign_size(image_width, image_height,x1,x2,y1,y2):
 
         sign_area_ratio = max_sign_area / total_image_area
         return sign_area_ratio
-
+    #lhne yekhdem weldi modeli l7abib eli jeb 96% accuracy
 def run(video_path):
-    detector = YOLODetector('best.pt')
-   
-    
+    detector = YOLODetector('best.pt')   
     cap = cv2.VideoCapture(video_path)
       # Get video properties
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     control = CarControl(fps,width,height)
-    # Define the codec and create VideoWriter object
+    # hedhi temporarly trecordi video men awl matethal l cam /yabda l vid just hachti beha baad tetbadl ywali yrecordi ken ki tsir violation
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter('output.avi', fourcc, fps, (width, height))
-    car_speed = 0  #Car Speed Placeholder (manaarach kifeh)
-    
+    car_speed = 0  #Car Speed Placeholder (manaarach kifeh nekhdhou speed ml hardware taa lkarhba)
+#lhne nekhdhou l frames w nhezouhom lel carcontrol nental9ou f khedmet l checker    
     while True:
         ret, frame = cap.read()
         if not ret:
