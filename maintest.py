@@ -42,7 +42,7 @@ def run(video_path):
         speed_limit_class_names = ["Speed Limit 10", "Speed Limit 20", "Speed Limit 30", "Speed Limit 40",
                                "Speed Limit 50", "Speed Limit 60", "Speed Limit 70", "Speed Limit 80",
                                "Speed Limit 90", "Speed Limit 100", "Speed Limit 110", "Speed Limit 120"]
-        
+        for_check=False
         for i, det in enumerate(detections, 1):
             class_name = det['class_name']
             x1, y1, x2, y2 = det['bounding_box']
@@ -52,17 +52,20 @@ def run(video_path):
             print(f"  Bounding Box: (x1={x1}, y1={y1}, x2={x2}, y2={y2})")
             print(f"  Confidence: {confidence:.2f}")
             print()
-            if confidence >= 0.7:
+            if confidence >= 0.5:
+                for_check=True
                 control.update(class_name,sign_size(image_width,image_height,x1,x2,y1,y2),confidence)
+                print(control.history)
                 if class_name in speed_limit_class_names:
                     control.update_speed()
                 if class_name == "Red Light":
-                    control.check_red()
+                    control.check_red(confidence)
+                    print('floppa')
                 if class_name == "Green Light":
                     control.check_green()
                 if class_name == "Stop":
                     control.check_stop()
-        else:
+        if not for_check:
             control.update("none",0,0)
         
         control.check_violation(car_speed)

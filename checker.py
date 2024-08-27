@@ -12,7 +12,6 @@ class CarControl:
         self.history = []
         for i in range(frames_to_check):
             self.history.append(["none", 0, 0])
-            
         #last 10 secs Window
         self.record = []
         self.max_rec_size = rec_size
@@ -24,14 +23,28 @@ class CarControl:
         
         self.in_stop = False
         self.curr_speed_lim = 50
+        self.db_config = {
+    'host': 'sql7.freemysqlhosting.net',
+    'user': 'sql7720134',
+    'database': 'sql7720134',
+    'password': '3b6uDHWTa3',
+    'port' : '3306'
+}
 
-        # Database connection
-        self.db_config = db_config
+
+          # Database connection
         self.db_connection = None
         self.db_cursor = None
+        self.connect_to_db()
+      
         if self.db_config:
             self.connect_to_db()
-
+    def log_viol(self, violID, type):
+        time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = f"{violID}_{type}_{time}\n"
+        log_file = open("log.txt", "a")
+        log_file.write(log_entry)
+        log_file.close()       
     def update_rec(self,frame):
         self.record.append(frame)
         if(len(self.record) > self.max_rec_size):
@@ -41,6 +54,7 @@ class CarControl:
         try:
             self.db_connection = mysql.connector.connect(**self.db_config)
             self.db_cursor = self.db_connection.cursor()
+            print("Successfully connected to the database")
         except mysql.connector.Error as err:
             print(f"Error connecting to MySQL database: {err}")
 
@@ -49,9 +63,10 @@ class CarControl:
         if len(self.history) > self.frames_to_check:
             self.history.pop(0)
         
-    def check_red(self):
+    def check_red(self,conf):
         for i in self.history:
             if i[0] == "Red Light" and i[1] >= self.threshold:
+                self.recent_red_conf =conf
                 self.in_red = True
             
     def check_green(self):
@@ -71,7 +86,8 @@ class CarControl:
         for i in self.history:
             if i[0] in speed_limit_class_names and i[1] >= self.threshold:
                 self.curr_speed_lim = int(i[0].split()[-1])
-                
+   
+        
     def record_write(self,path):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter(path, fourcc, self.fps, (self.width, self.height))
@@ -91,22 +107,24 @@ class CarControl:
 
         if speed > self.curr_speed_lim:
             violation_type = "SPEED LIMIT EXCEEDED"
-            confidence_score = 1.0 
+            confidence_score = 0.8
 
         a = 0
         for i in self.history:
-            if i[1] < self.threshold:
+            if  i[1] < self.threshold or i[0] != "Red Light":
                 a += 1
         if a == self.frames_to_check:
             self.in_stop = False
             if self.in_red:
                 violation_type = "RED LIGHT VIOLATION"
-                confidence_score = max([i[2] for i in self.history if i[0] == "Red Light"])
+                
             self.in_red = False
 
         if violation_type:
+            print(violation_type)
             if violation_type == "RED LIGHT VIOLATION":
                 type = 'RD'
+                
             elif violation_type == "SPEED LIMIT EXCEEDED":
                 type = "SP"
             else:
@@ -118,11 +136,10 @@ class CarControl:
                 newID = 1
             else:
                 newID = newID + 1
-            p = f'\\violations\\VIOLATION#{type}{newID}.avi'
             self.record_write(p)
             cursor.close()
             self.save_violation(newID, violation_type, speed, p, confidence_score)
-
+            self.log_viol(newID, violation_type)
     def save_violation(self, detection_id, violation_type, speed, video_path, confidence_score):
         if not self.db_connection:
             print("Database connection not established. Cannot save violation.")
@@ -132,7 +149,7 @@ class CarControl:
         
         insert_query = """
         INSERT INTO Results 
-        (DetectionID, Timestamp, ViolationType, Speed, Speed_Limit, Image_Path, Video_Path, Confidence_Score)
+        (DetectionID, Timestamp, ViolationType, Speed, Speed_Limit, Video_Path, Confidence_Score)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         violation_data = (
