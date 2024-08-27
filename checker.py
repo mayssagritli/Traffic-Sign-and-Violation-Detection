@@ -3,13 +3,13 @@ import cv2
 from datetime import datetime
 #class hedhi tekhou 5 frames t9ayadhom each time , l threshold howa 9adeh lezm l ratio mtaa l sign fl whole image yfout bch tthseb lkarhba taht lblaka 
 class CarControl:
-    def __init__(self,fps,width,height, frames_to_check=5, threshold=0.01, db_config=None,rec_size=100):
+    def __init__(self,fps,width,height, frames_to_check=5, threshold=0.003, db_config=None,rec_size=100):
         self.frames_to_check = frames_to_check
         self.fps = fps
         self.width = width
         self.height = height
         self.threshold = threshold
-#history fih l frames l 5 eli n9aydou fehom esm lclasse taa sign , l ratio eli lezm akber mel threshold w l confidence  
+#history fih l frames l 5 eli n9aydou fehom esm lclasse taa sign si famech none , l ratio eli lezm akber mel threshold w l confidence  
         self.history = []
         for i in range(frames_to_check):
             self.history.append(["none", 0, 0])
@@ -41,7 +41,7 @@ class CarControl:
             self.connect_to_db()
 #log nhebou nchoufou y9ayed wale (just testing)            
     def log_viol(self, violID, type):
-        time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"{violID}_{type}_{time}\n"
         log_file = open("log.txt", "a")
         log_file.write(log_entry)
@@ -133,18 +133,19 @@ class CarControl:
             else:
                 type = 'ST'
             cursor = self.db_connection.cursor()
-            cursor.execute("SELECT MAX(DETECTION_ID) FROM Results")
+            cursor.execute("SELECT MAX(DetectionID) FROM Results")
             newID = cursor.fetchone()[0]
             if newID is None:
                 newID = 1
             else:
                 newID = newID + 1
+            p = f'\\violations\\VIOLATION#{type}{newID}.avi'    
             self.record_write(p)
             cursor.close()
             self.save_violation(newID, violation_type, speed, p, confidence_score)
             self.log_viol(newID, violation_type)
   #lhne nsavi l results fl db           
-    def save_violation(self, detection_id, violation_type, speed, video_path, confidence_score):
+    def save_violation(self, DetectionID, violation_type, speed, video_path, confidence_score):
         if not self.db_connection:
             print("Database connection not established. Cannot save violation.")
             return
@@ -154,10 +155,10 @@ class CarControl:
         insert_query = """
         INSERT INTO Results 
         (DetectionID, Timestamp, ViolationType, Speed, Speed_Limit, Video_Path, Confidence_Score)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         violation_data = (
-            detection_id,
+            DetectionID,
             timestamp,
             violation_type,
             speed,

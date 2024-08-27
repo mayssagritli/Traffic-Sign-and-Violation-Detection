@@ -50,6 +50,7 @@ def run(video_path):
             print(f"  Bounding Box: (x1={x1}, y1={y1}, x2={x2}, y2={y2})")
             print(f"  Confidence: {confidence:.2f}")
             print()
+            print(control.history)       
             if confidence >= 0.5:
                 for_check=True
                 control.update(class_name,sign_size(image_width,image_height,x1,x2,y1,y2),confidence)
@@ -58,7 +59,6 @@ def run(video_path):
                     control.update_speed()
                 if class_name == "Red Light":
                     control.check_red(confidence)
-                    print('floppa')
                 if class_name == "Green Light":
                     control.check_green()
                 if class_name == "Stop":
