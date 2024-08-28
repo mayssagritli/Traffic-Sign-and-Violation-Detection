@@ -1,5 +1,6 @@
 import mysql.connector
 import cv2
+import os
 from datetime import datetime
 #class hedhi tekhou 5 frames t9ayadhom each time , l threshold howa 9adeh lezm l ratio mtaa l sign fl whole image yfout bch tthseb lkarhba taht lblaka 
 class CarControl:
@@ -90,11 +91,30 @@ class CarControl:
                 self.curr_speed_lim = int(i[0].split()[-1])
    
         
-    def record_write(self,path):
+    def record_write(self, path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter(path, fourcc, self.fps, (self.width, self.height))
-        for f in self.record:
-            out.write(f)
+        if not out.isOpened():
+            print(f"Error: Could not open video writer for {path}")
+            return
+        try:
+            for f in self.record:
+                if f.shape != (self.height, self.width, 3):
+                    f = cv2.resize(f, (self.width, self.height))
+                if len(f.shape) == 2:  
+                    f = cv2.cvtColor(f, cv2.COLOR_GRAY2BGR)
+                out.write(f)
+            print(f"Video successfully written to {path}")
+        except Exception as e:
+            print(f"Error while writing video: {str(e)}")
+        finally:
+            out.release()
+
+        if os.path.exists(path) and os.path.getsize(path) > 0:
+            print(f"Video file created successfully: {path}")
+        else:
+            print(f"Error: Video file was not created or is empty: {path}")
     
         out.release()
 #lhne lkhedma taa violations        
@@ -121,6 +141,7 @@ class CarControl:
             self.in_stop = False
         if a == self.frames_to_check:
             if self.in_red:
+                confidence_score = self.recent_red_conf
                 violation_type = "RED LIGHT VIOLATION"
             self.in_red = False
 
@@ -139,7 +160,11 @@ class CarControl:
                 newID = 1
             else:
                 newID = newID + 1
-            p = f'\\violations\\VIOLATION#{type}{newID}.avi'    
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            violations_dir = os.path.join(script_dir, "violations")
+            os.makedirs(violations_dir, exist_ok=True)
+            p = os.path.join(violations_dir, f"VIOLATION#{type}{newID}.avi")
+            print(f"Video will be saved to: {p}")
             self.record_write(p)
             cursor.close()
             self.save_violation(newID, violation_type, speed, p, confidence_score)

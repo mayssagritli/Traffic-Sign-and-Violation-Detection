@@ -41,6 +41,7 @@ def run(video_path):
                                "Speed Limit 50", "Speed Limit 60", "Speed Limit 70", "Speed Limit 80",
                                "Speed Limit 90", "Speed Limit 100", "Speed Limit 110", "Speed Limit 120"]
         for_check=False
+        
         for i, det in enumerate(detections, 1):
             class_name = det['class_name']
             x1, y1, x2, y2 = det['bounding_box']
@@ -69,7 +70,7 @@ def run(video_path):
         control.check_violation(car_speed)
         
         frame = detector.draw_detections(frame, detections)
-        
+        control.update_rec(frame)
         out.write(frame)
         
         cv2.imshow("Traffic Sign Detection", frame)
