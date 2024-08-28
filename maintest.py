@@ -59,7 +59,7 @@ def run(video_path):
                 if class_name in speed_limit_class_names:
                     control.update_speed()
                 if class_name == "Red Light":
-                    control.check_red(confidence)
+                    control.check_red()
                 if class_name == "Green Light":
                     control.check_green()
                 if class_name == "Stop":

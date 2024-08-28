@@ -19,7 +19,7 @@ class CarControl:
         self.max_rec_size = rec_size
         self.id = 0
 
-        
+        self.recent_red_conf=0
         self.in_red = False
         self.passed = True
         
@@ -66,10 +66,10 @@ class CarControl:
         if len(self.history) > self.frames_to_check:
             self.history.pop(0)
 #lhne check ken l sign red wale        
-    def check_red(self,conf):
+    def check_red(self):
         for i in self.history:
             if i[0] == "Red Light" and i[1] >= self.threshold:
-                self.recent_red_conf =conf
+                self.recent_red_conf =i[2]
                 self.in_red = True
  #check ken l sign green detected               
     def check_green(self):
