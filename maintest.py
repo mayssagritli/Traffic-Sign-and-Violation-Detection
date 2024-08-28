@@ -1,5 +1,3 @@
-# main.py
-
 import cv2
 from yolo_detector import YOLODetector
 from checker import CarControl
@@ -25,10 +23,11 @@ def run(video_path):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     control = CarControl(fps,width,height)
-    # hedhi temporarly trecordi video men awl matethal l cam /yabda l vid just hachti beha baad tetbadl ywali yrecordi ken ki tsir violation
+    '''hedhi temporarly trecordi video men awl matethal l cam /yabda l vid just hachti beha
+    baad tetbadl ywali yrecordi ken ki tsir violation'''
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter('output.avi', fourcc, fps, (width, height))
-    car_speed = 0  #Car Speed Placeholder (manaarach kifeh nekhdhou speed ml hardware taa lkarhba)
+    car_speed = 0  #Car Speed Placeholder (maandich kifeh nekhdhou speed ml hardware taa lkarhba)
 #lhne nekhdhou l frames w nhezouhom lel carcontrol nental9ou f khedmet l checker    
     while True:
         ret, frame = cap.read()
@@ -76,12 +75,10 @@ def run(video_path):
         cv2.imshow("Traffic Sign Detection", frame)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    
+            break   
     cap.release()
     out.release()
     cv2.destroyAllWindows()
-
 if __name__ == "__main__":
     video_path = "testvid.mp4"
     run(video_path)

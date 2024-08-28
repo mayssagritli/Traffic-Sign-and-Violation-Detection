@@ -2,9 +2,11 @@ import mysql.connector
 import cv2
 import os
 from datetime import datetime
-#class hedhi tekhou 5 frames t9ayadhom each time , l threshold howa 9adeh lezm l ratio mtaa l sign fl whole image yfout bch tthseb lkarhba taht lblaka 
+'''
+class hedhi tekhou 5 frames t9ayadhom each time , l threshold howa 9adeh lezm l ratio mtaa l sign fl whole image yfout 
+bch tthseb lkarhba taht lblaka '''
 class CarControl:
-    def __init__(self,fps,width,height, frames_to_check=5, threshold=0.003, db_config=None,rec_size=100):
+    def __init__(self,fps,width,height, frames_to_check=5, threshold=0.003,rec_size=100):
         self.frames_to_check = frames_to_check
         self.fps = fps
         self.width = width
