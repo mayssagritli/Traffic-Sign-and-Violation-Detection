@@ -78,7 +78,7 @@ The OutSystems dashboard provides visualization for:
 - Arafet Zouari (Supervisor)
 
 ## Acknowledgments
-
+I want to thank my supervisor Arafet Zouari for his invaluable guidance and support throughout my internship.I truly appreciate all the time and effort he've invested in helping me succeed.
 - Dataset source: Kaggle
 - YOLOv8: Ultralytics
 - OutSystems for dashboard development
