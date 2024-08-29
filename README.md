@@ -74,8 +74,8 @@ The OutSystems dashboard provides visualization for:
 ## Contributors
 
 - Mayssa Gritli (Project Lead)
+- Feres Baba (Improved Violation Detection Algorithms)
 - Arafet Zouari (Supervisor)
-- Becher Mejri (Metrics Dashboard)
 
 ## Acknowledgments
 
