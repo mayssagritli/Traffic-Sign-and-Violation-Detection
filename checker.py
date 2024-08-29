@@ -3,8 +3,9 @@ import cv2
 import os
 from datetime import datetime
 '''
-class hedhi tekhou 5 frames t9ayadhom each time , l threshold howa 9adeh lezm l ratio mtaa l sign fl whole image yfout 
-bch tthseb lkarhba taht lblaka '''
+This class takes 5 frames that it saves each time, the treshold is used to check if the ratio of the sign in comparaison 
+to the whole frame if ratio>threshold it means the care drove to that sign and it's under it
+'''
 class CarControl:
     def __init__(self,fps,width,height, frames_to_check=5, threshold=0.003,rec_size=100):
         self.frames_to_check = frames_to_check
@@ -12,7 +13,7 @@ class CarControl:
         self.width = width
         self.height = height
         self.threshold = threshold
-#history fih l frames l 5 eli n9aydou fehom esm lclasse taa sign si famech none , l ratio eli lezm akber mel threshold w l confidence  
+#history stores the 5 frames that we save the sign's class name,ratio,and confidence (the confidence of the detection  between 0 anc 1)    
         self.history = []
         for i in range(frames_to_check):
             self.history.append(["none", 0, 0])
@@ -27,7 +28,8 @@ class CarControl:
         
         self.in_stop = False
         self.curr_speed_lim = 50
-        #details l db eli bch n9aydou feha l violations 
+        #database details in which we're saving the violations' logs
+        
         #Database connection
         self.db_config= {
                             'host': 'sql7.freemysqlhosting.net',
@@ -42,7 +44,7 @@ class CarControl:
       
         if self.db_config:
             self.connect_to_db()
-#log nhebou nchoufou y9ayed wale (just testing)            
+#log that saves violations in a txt file to test             
     def log_viol(self, violID, type):
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"{violID}_{type}_{time}\n"
@@ -62,23 +64,27 @@ class CarControl:
             print("Successfully connected to the database")
         except mysql.connector.Error as err:
             print(f"Error connecting to MySQL database: {err}")
-#lhne naabiw l list taa l history chykoun feha list mtaa 5 frames kol frame aandou [calssname,ratio,confidence]
+#Here we append the history's list to save 5 frames each time and each frame has [calssname,ratio,confidence] if there's no detection it's ["None",0,0]            
+
     def update(self, sign_class_name, ratio,conf):
         self.history.append([sign_class_name, ratio, conf])
         if len(self.history) > self.frames_to_check:
             self.history.pop(0)
-#lhne check ken l sign red wale        
+#We check if the sign detected is red ligh or not            
+
     def check_red(self):
         for i in self.history:
             if i[0] == "Red Light" and i[1] >= self.threshold:
                 self.recent_red_conf =i[2]
                 self.in_red = True
- #check ken l sign green detected               
+#We check if the sign detected is green ligh or not 
+             
     def check_green(self):
         for i in self.history:
             if i[0] == "Green Light" and i[1] >= self.threshold:
                 self.in_red = False
-#check ken l sign Stop        
+                
+#We check if the sign detected is stop sign or not    
     def check_stop(self):
         for i in self.history:
             if i[0] == "Stop" and i[1] >= self.threshold:
@@ -119,7 +125,8 @@ class CarControl:
             print(f"Error: Video file was not created or is empty: {path}")
     
         out.release()
-#lhne lkhedma taa violations        
+#This is the vioalations check to test which type of violations happened
+       
     def check_violation(self, speed):
         violation_type = None
         confidence_score = 0
@@ -162,6 +169,7 @@ class CarControl:
                 newID = 1
             else:
                 newID = newID + 1
+           #Here we record a video of the violation
             script_dir = os.path.dirname(os.path.abspath(__file__))
             violations_dir = os.path.join(script_dir, "violations")
             os.makedirs(violations_dir, exist_ok=True)
@@ -171,7 +179,8 @@ class CarControl:
             cursor.close()
             self.save_violation(newID, violation_type, speed, p, confidence_score)
             self.log_viol(newID, violation_type)
-  #lhne nsavi l results fl db           
+#This saves the results in the MYSQL database
+
     def save_violation(self, DetectionID, violation_type, speed, video_path, confidence_score):
         if not self.db_connection:
             print("Database connection not established. Cannot save violation.")
