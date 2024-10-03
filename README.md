@@ -55,6 +55,12 @@ This project implements a real-time traffic law enforcement system using compute
    for live feed:
    python maintest_live_version
 
+## Contributors
+
+- Mayssa Gritli (Project Lead)
+- Feres Baba (Improved Violation Detection Algorithms)
+- Arafet Zouari (Supervisor)
+
 ## Usage
 
 The system can process live camera feed or video files for traffic violation detection. To use a video file instead of live feed, modify the `video_path` parameter in `main.py`.
@@ -71,11 +77,6 @@ The OutSystems dashboard provides visualization for:
 2. Enhance violation detection algorithms for higher accuracy
 3. Train with additional datasets to detect cars and other signs
 
-## Contributors
-
-- Mayssa Gritli (Project Lead)
-- Feres Baba (Improved Violation Detection Algorithms)
-- Arafet Zouari (Supervisor)
 
 ## Acknowledgments
 I want to thank my supervisor Arafet Zouari for his invaluable guidance and support throughout my internship.I truly appreciate all the time and effort he've invested in helping me succeed.
